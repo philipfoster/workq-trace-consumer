@@ -28,7 +28,7 @@ public class KafkaConsumer {
     @KafkaListener(topics = "${kafka.topic}", groupId = "${kafka.groupId}")
     public void listen(String message) throws JsonProcessingException {
         ProcessTraceEvent event = mapper.readValue(message, ProcessTraceEvent.class);
-        LOGGER.info("Got message {}", event);
+        LOGGER.debug("Got message from kafka {}", event);
         mongoOperations.insert(event);
     }
 

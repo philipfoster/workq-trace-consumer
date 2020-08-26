@@ -7,8 +7,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.workq.traceeventconsumer.marshalling.LocalDateTimeDeserializer;
 import com.workq.traceeventconsumer.marshalling.LocalDateTimeSerializer;
 import java.time.LocalDateTime;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Data model for a generic trace event. IF additional trace types are added, they should inherit from this class.
