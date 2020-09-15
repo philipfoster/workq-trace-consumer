@@ -4,6 +4,9 @@ package com.workq.traceeventconsumer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.workq.traceeventconsumer.events.ProcessTraceEvent;
+import com.workq.traceeventconsumer.events.SlaViolatedTraceEvent;
+import com.workq.traceeventconsumer.events.TaskTraceEvent;
+import com.workq.traceeventconsumer.events.TraceEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +30,24 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "${kafka.topic}", groupId = "${kafka.groupId}")
     public void listen(String message) throws JsonProcessingException {
-        ProcessTraceEvent event = mapper.readValue(message, ProcessTraceEvent.class);
-        LOGGER.debug("Got message from kafka {}", event);
+        TraceEvent event = parseTraceEvent(message);
+        LOGGER.info("Got message from kafka {}", event);
         mongoOperations.insert(event);
+    }
+
+    private TraceEvent parseTraceEvent(String json) throws JsonProcessingException {
+        TraceEvent event = mapper.readValue(json, TraceEvent.class);
+        switch (event.getTraceEventType()) {
+            case ProcessTraceEvent:
+                return mapper.readValue(json, ProcessTraceEvent.class);
+            case SlaViolatedEvent:
+                return mapper.readValue(json, SlaViolatedTraceEvent.class);
+            case TaskTraceEvent:
+                return mapper.readValue(json, TaskTraceEvent.class);
+            default:
+                LOGGER.warn("Failed to parse json {}", json);
+                return event;
+        }
     }
 
 }
